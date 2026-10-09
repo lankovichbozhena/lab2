@@ -1,0 +1,197 @@
+#include <iostream>
+#include <cmath>     // Для функций abs() и fmod() 
+#include <iomanip>   // Для форматирования вывода (setprecision)
+#include <windows.h> // Для настройки кодировки консоли
+
+using namespace std;
+
+// ЗАДАНИЕ 1. Кредит //
+void task1() {
+    cout << "\n--- Задание 1: Кредит ---\n";
+    double income, expenses, payment;
+
+cout << "Введите ежемесячный доход: ";
+cin >> income;
+cout << "Введите обязательные ежемесячные расходы: ";
+cin >> expenses;
+cout << "Введите запрашиваемый платёж по кредиту: ";
+cin >> payment;
+
+// Проверка на неотрицательность
+if (income < 0 || expenses < 0 || payment < 0) {
+    cout << "Ошибка: все значения должны быть неотрицательными!" << endl;
+    return;
+}
+
+// Если доход равен 0 — сразу отказ
+if (income == 0) {
+    cout << "Решение: Отказ. Причина: Доход равен 0." << endl;
+    return;
+}
+
+// Проверка условия одобрения
+double remaining = income - expenses; // Остаток после расходов
+double doublePayment = payment * 2;   // Двойной размер платежа
+double maxPayment = income * 0.4;     // 40% от дохода
+
+if (remaining >= doublePayment && payment <= maxPayment) {
+    cout << "Решение: Кредит одобрен!" << endl;
+} 
+else {
+    cout << "Решение: Отказ. Причина: ";
+    if (remaining < doublePayment) {
+        cout << "Недостаточно средств после расходов (нужно минимум " << doublePayment << ")." << endl;
+    }
+    else if (payment > maxPayment) {
+        cout << "Платёж превышает 40% от дохода (максимум " << maxPayment << ")." << endl;
+    }
+}
+}
+// ЗАДАНИЕ 2. Банкомат //
+void task2() {
+    cout << "\n--- Задание 2: Банкомат ---\n"; 
+    double balance, amount;
+    int ownATM;
+
+cout << "Введите баланс: ";
+cin >> balance;
+cout << "Введите сумму снятия: ";
+cin >> amount;
+cout << "Свой банкомат? (1 - да, 0 - нет): ";
+cin >> ownATM;
+
+// Проверка суммы
+if (amount <= 0) {
+    cout << "Отказ: Некорректная сумма." << endl;
+    return;
+}
+if (fmod(amount, 10) != 0) {
+    cout << "Отказ: Сумма должна быть кратна 10." << endl;
+    return;
+}
+
+// Расчет комиссии
+double commission = 0;
+if (ownATM == 0) {
+    commission = amount * 0.02; 
+    if (commission < 1) {
+        commission = 1; // Минимум 1
+    }
+}
+
+double totalNeeded = amount + commission;
+
+if (balance < totalNeeded) {
+    cout << "Отказ: Недостаточно средств. Нужно: " << totalNeeded
+        << " (включая комиссию " << commission << ")" << endl;
+}
+else {
+    cout << "Успешно! Выдано: " << amount << ". Комиссия: " << commission << endl;
+}
+}
+// ЗАДАНИЕ 3. Лимит перевода // 
+void task3() { cout << "\n--- Задание 3: Лимит перевода ---\n";
+char cardType;
+double amount;
+
+cout << "Введите тип карты (D - Debit, C - Classic, P - Premium): ";
+cin >> cardType;
+cout << "Введите сумму перевода: ";
+cin >> amount;
+
+double limit = 0;
+
+// Используем switch для выбора лимита
+switch (cardType) {
+case 'D': case 'd': limit = 500; break;
+case 'C': case 'c': limit = 1000; break;
+case 'P': case 'p': limit = 3000; break;
+default:
+    cout << "Ошибка: Неизвестный тип карты." << endl;
+    return;
+}
+
+// Проверка суммы
+if (amount <= 0) {
+    cout << "Отказ: Сумма должна быть положительной." << endl;
+}
+else if (amount > limit) {
+    cout << "Отказ: Сумма превышает лимит карты (" << limit << ")." << endl;
+}
+else {
+    cout << "Разрешение: Перевод одобрен. Лимит карты: " << limit << endl;
+}
+}
+//  ЗАДАНИЕ 4. Операции по счету //
+void task4() {
+    cout << "\n--- Задание 4: Операции ---\n";
+    char op;
+    double balance, amount;
+
+cout << "Введите код операции (W - снятие, T - перевод, P - платёж): ";
+cin >> op;
+cout << "Введите баланс: ";
+cin >> balance;
+cout << "Введите сумму: ";
+cin >> amount;
+
+// Проверка суммы
+if (amount <= 0) {
+    cout << "Отказ: Сумма должна быть > 0." << endl;
+    return;
+}
+
+double commission = 0;
+
+// Выбор комиссии через switch
+switch (op) {
+case 'W': case 'w':
+    if (fmod(amount, 10) != 0) {
+        cout << "Отказ: Сумма снятия должна быть кратна 10." << endl;
+        return;
+    }
+    commission = amount * 0.01;
+    if (commission < 0.5) commission = 0.5;
+    break;
+case 'T': case 't':
+    commission = amount * 0.015;
+    if (commission < 1) commission = 1;
+    break;
+case 'P': case 'p':
+    commission = 0;
+    break;
+default:
+    cout << "Ошибка: Неизвестный код операции." << endl;
+    return;
+}
+
+double total = amount + commission;
+
+if (balance < total) {
+    cout << "Отказ: Недостаточно средств. Нужно: " << total
+        << " (включая комиссию " << commission << ")" << endl;
+}
+else {
+    double newBalance = balance - total;
+    cout << fixed << setprecision(2);
+    cout << "Операция успешна!" << endl;
+    cout << "Комиссия: " << commission << endl;
+    cout << "Итого списано: " << total << endl;
+    cout << "Новый баланс: " << newBalance << endl;
+}
+}
+//  ГЛАВНАЯ ФУНКЦИЯ // 
+int main() { 
+    // Настройка кодировки для Windows
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    setlocale(LC_ALL, "ru_RU.UTF-8");
+
+// Вызов заданий по порядку
+task1();
+task2();
+task3();
+task4();
+
+return 0;
+}
